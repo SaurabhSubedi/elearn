@@ -3,12 +3,15 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, logout, login
 from django.db import IntegrityError
 from django.contrib import messages
+from .models import Product
 
 
 # Create your views here.
 def home(request):
     if request.user.is_authenticated:
-        return render(request, 'index.html')
+        obj = Product.objects.all()
+        context = {'object': obj}
+        return render(request, 'index.html', context)
 
     else:
         return redirect('login')
@@ -24,13 +27,12 @@ def loginUser(request):
             login(request, result)
             return redirect('home')
         else:
-            messages.warning(request,"Please enter valid credentials")
+            messages.warning(request, "Please enter valid credentials")
 
     return render(request, 'login.html')
 
 
 def signupUser(request):
-
     try:
         if request.method == 'POST':
             username = request.POST.get('username')
@@ -40,13 +42,13 @@ def signupUser(request):
             usersinfo = User.objects.all()
             for obj in usersinfo:
                 if (obj.username == username):
-                    messages.warning(request,"Username already exists")
+                    messages.warning(request, "Username already exists")
                     return redirect('signup')
                 elif (obj.email == email):
-                    messages.warning(request,"Email already exists")
+                    messages.warning(request, "Email already exists")
                     return redirect('signup')
                 elif (password1 != password2):
-                    messages.warning(request,"Passwords didnot match")
+                    messages.warning(request, "Passwords didnot match")
                     return redirect('signup')
                 else:
                     user = User.objects.create_user(username=username, email=email, password=password1)
@@ -56,11 +58,9 @@ def signupUser(request):
     except IntegrityError:
         return redirect('signup')
 
-
     return render(request, 'signup.html')
 
 
 def logoutUser(request):
     logout(request)
     return redirect('login')
-

@@ -28,9 +28,12 @@
 
         .card-manager {
             display: flex;
-            align-items: center;
             justify-content: center;
 
+        }
+
+        .product_id {
+            display: none;
         }
     </style>
 </head>
@@ -47,27 +50,58 @@
                 <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Features</a>
+                <a class="nav-link" href="{% url 'additem' %}">Additem</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Pricing</a>
+            <li class="nav-item float-right">
+                <a class="nav-link" href="#">Hi {{ request.user }}</a>
             </li>
+             <li class="nav-item float-right">
+                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+            </li>
+
+
         </ul>
     </div>
 </nav>
-{% for item in  object %}
-<div class="card-manager">
-    <div class="card" style="width: 18rem;">
-        <img class="card-img-top" src="{{ item.img.url }}" alt="Card image cap">
-        <div class="card-body">
-            <h5 class="card-title">{{item.title}}</h5>
-            <p class="card-text">{{ item.desc }}</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
-        </div>
-    </div>
-
+{% if messages %}
+      {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+              <strong>Alert:</strong>{{ message }}
+  <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
 </div>
-{% endfor %}
+      {% endfor %}
+  {% endif %}
+<div class="card-manager">
+    {% for item in  object %}
+        <div class="card" style="width: 18rem; margin: 2px">
+            <img class="card-img-top" src="{{ item.img.url }}" alt="Card image cap">
+            <div class="card-body">
+                <h5 class="card-title">{{ item.title }}</h5>
+                <p class="card-text">{{ item.desc }}</p>
+                <button class="btn btn-primary btn-block mb-4">Rs. {{ item.price }}</button>
+                <form action="{% url 'cart' %}" method="get">
+                    {% csrf_token %}
+                    <input type="number" value="{{ item.id }}" class="product_id" name="product_id">
+                    <button type="submit" class="btn btn-success btn-block mb-4">Buy</button>
+                </form>
+                {% if request.user.is_superuser %}
+                <form action="{% url 'deleteitem' %}" method="post">
+                    {% csrf_token %}
+                    <input type="number" value="{{ item.id }}" class="product_id" name="product_id">
+                    <button type="submit" class="btn btn-danger btn-block mb-4">DeleteItem</button>
+                </form>
+                    <form action="{% url 'edititem' %}" method="get">
+                    {% csrf_token %}
+                    <input type="number" value="{{ item.id }}" class="product_id" name="product_id">
+                    <button type="submit" class="btn btn-info btn-block mb-4">EditItem</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"

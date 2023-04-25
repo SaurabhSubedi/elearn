@@ -64,3 +64,94 @@ def signupUser(request):
 def logoutUser(request):
     logout(request)
     return redirect('login')
+
+
+def cart(request):
+    if request.method == 'GET':
+        product_id = request.GET.get('product_id')
+        product = Product.objects.filter(id=product_id)
+        item = product[0]
+        content = {
+            'product': item,
+        }
+    return render(request, 'cart.html', content)
+
+
+def checkout(request):
+    if request.method == "GET":
+        product_id = request.GET.get('product_id')
+        quantity = request.GET.get('quantity')
+        product_query = Product.objects.filter(id=product_id)
+        actual_product = product_query[0]
+        total_cost = actual_product.price * float(quantity)
+        context = {
+            'product': actual_product,
+            'total_cost': total_cost,
+            'quantity': quantity
+        }
+        return render(request, 'checkout.html', context)
+
+
+def addItem(request):
+    if request.method == "POST":
+        if request.user.is_superuser:
+            title = request.POST.get('title')
+            desc = request.POST.get('desc')
+            img = request.FILES['img']
+            price = float(request.POST.get('price'))
+            item = Product(title=title, desc=desc, img=img, price=price)
+            item.save()
+            return redirect('home')
+        else:
+            messages.warning(request,"only verified users can add items")
+            return redirect('additem')
+
+    return render(request,'additem.html')
+
+def deleteitem(request):
+    if request.user.is_superuser:
+        if request.method == "POST":
+            product_id = request.POST.get('product_id')
+            product = Product.objects.filter(id = product_id)
+            item = product[0]
+            context = {
+                'product': item
+            }
+            return render(request,'deleteitem.html',context)
+    else:
+        messages.warning(request,'only admins can delete items')
+        return redirect('home')
+
+def confirmdelete(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        item = Product.objects.filter(id = product_id)
+        item.delete()
+        messages.success(request,'item has been deleted succesfully')
+        return redirect('home')
+def edititem(request):
+    if request.method == 'GET':
+        product_id = request.GET.get('product_id')
+        item = Product.objects.filter(id = product_id)
+        product = item[0]
+        context = {
+            'product': product,
+        }
+        return render(request,'edititem.html',context)
+    if request.method == 'POST':
+        id = request.POST.get('id')
+        title = request.POST.get('title')
+        desc  = request.POST.get('desc')
+        price = request.POST.get('price')
+        img = request.FILES['img']
+        item = Product.objects.filter(id=id)
+        product = item[0]
+        product.title = title
+        product.desc = desc
+        product.price = price
+        product.img = img
+        product.save()
+        messages.success(request,"Item edited successfully")
+        return redirect('home')
+
+

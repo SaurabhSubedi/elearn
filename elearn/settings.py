@@ -133,7 +133,8 @@ STATICFILES_DIRS = [
 
 from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
-    messages.WARNING:'danger'
+    messages.WARNING:'danger',
+    messages.SUCCESS:'success',
 }
 #emailconfig
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

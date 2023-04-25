@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="card" style="width: 18rem;">
+        <img class="card-img-top" src="{{ product.img.url }}" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">{{ product.title }}</h5>
+            <p class="card-text">{{ product.desc }}</p>
+            <button class="btn btn-primary btn-block mb-4">Rs. {{ product.price }}</button>
+            <form action="{% url 'checkout' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="quantity">Quantity</label>
+                    <input type="number" class="form-control" id="quantity" aria-describedby="emailHelp"  readonly  value="{{ quantity }}">
+                </div>
+                <label for="total_cost">Total</label>
+                    <input type="number" class="form-control" id="total_cost" aria-describedby="emailHelp"  readonly  value="{{ total_cost }}">
+                <br>
+                <button type="submit" class="btn btn-primary">Buy</button>
+            </form>
+
+        </div>
+    </div>
+{% endblock body %}
